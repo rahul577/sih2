@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context="com.example.rahul.sih.humidity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_marginTop="75dp"
+            android:layout_width="300dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="500dp">
+
+            <com.anychart.AnyChartView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/anychart_view">
+            </com.anychart.AnyChartView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:background="#ffffff"
+        android:layout_marginTop="500dp">
+
+        <Button
+            android:layout_width="89dp"
+            android:layout_height="wrap_content"
+            android:text="Press"
+            android:onClick="openPressure"/>
+
+        <Button
+            android:layout_width="89dp"
+            android:layout_height="wrap_content"
+            android:text="Temp"
+            android:onClick="openTemperature"/>
+
+        <Button
+            android:layout_width="89dp"
+            android:layout_height="wrap_content"
+            android:text="Humid"
+            android:onClick="openHumidity"/>
+
+        <Button
+            android:layout_width="89dp"
+            android:layout_height="wrap_content"
+            android:text="Vibra"
+            android:onClick="openVibrations"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/currentTemperature"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_alignBaseline="@+id/textView"
+        android:layout_alignBottom="@+id/textView"
+        android:layout_alignEnd="@+id/progressBar"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/droid_sans_mono"
+        android:text="30°"
+        android:textColor="#000"
+        android:textSize="50dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="120dp"
+        android:layout_marginTop="60dp"
+        android:fontFamily="@font/fira_mono_bold"
+        android:text="C"
+        android:textSize="25sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/currentTemperature"
+        android:layout_below="@+id/textView"
+        android:layout_marginStart="21dp"
+        android:text="1 min ago"
+        android:textColor="#000" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/droid_sans_mono"
+        android:text="229"
+        android:textColor="#000"
+        android:textSize="45dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="220dp"
+        android:textStyle="bold"
+        android:id="@+id/currentPpm" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ppm"
+        android:textStyle="bold"
+        android:layout_marginLeft="310dp"
+        android:layout_marginTop="67dp"
+        android:textSize="15sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/currentPpm"
+        android:layout_below="@+id/textView"
+        android:layout_marginStart="29dp"
+        android:text="today"
+        android:textColor="#000" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="400dp"
+        android:layout_marginLeft="300dp"
+        android:background="#FF0000"
+        android:clickable="true"
+        android:src="@drawable/stop_button"
+        android:backgroundTint="#ff0000"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
+
+</RelativeLayout>

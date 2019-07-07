@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.rahul.sih.vibrations">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="500dp">
+
+            <com.anychart.AnyChartView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/anychart_view">
+            </com.anychart.AnyChartView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="7dp">
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:text="Press"
+                android:onClick="openPressure"/>
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:text="Temp"
+                android:onClick="openTemperature"/>
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:text="Humid"
+                android:onClick="openHumidity"/>
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:text="Vibra"
+                android:onClick="openVibrations"/>
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="400dp"
+        android:layout_marginLeft="300dp"
+        android:background="#FF0000"
+        android:clickable="true"
+        android:src="@drawable/stop_button"
+        android:backgroundTint="#ff0000"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
+
+</RelativeLayout>
