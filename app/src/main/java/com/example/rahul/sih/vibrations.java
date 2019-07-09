@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -33,6 +34,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+
 public class vibrations extends AppCompatActivity {
 
 
@@ -43,49 +49,95 @@ public class vibrations extends AppCompatActivity {
     ProgressBar progressBar;
     int xcoordinate;
     List<DataEntry> seriesData = new ArrayList<>();
-    Set set = Set.instantiate();
+    Set set;
+    Cartesian cartesian;
+    Mapping series1Mapping, series2Mapping, series3Mapping;
+    int year = 0;
+    WebSocket ws;
+    private OkHttpClient client;
+
+
+    private final class EchoWebSocketListener extends WebSocketListener {
+        private static final int NORMAL_CLOSURE_STATUS = 1000;
+
+        @Override
+        public void onOpen(WebSocket webSocket, okhttp3.Response response) {
+            /*webSocket.send("Hello, it's SSaurel !");
+            webSocket.send("What's up ?");
+            webSocket.send(ByteString.decodeHex("deadbeef"));
+            //webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye !");*/
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            text = get_temperature(text);
+            output(text);
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            output("Receiving bytes : " + bytes.hex());
+        }
+
+        @Override
+        public void onClosing(WebSocket webSocket, int code, String reason) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null);
+        }
+
+        @Override
+        public void onFailure(WebSocket webSocket, Throwable t, okhttp3.Response response) {
+            output("Error : " + t.getMessage());
+        }
+    }
+
+    private void start() {
+        String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
+        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String echo = "ws://echo.websocket.org";
+        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        ws = client.newWebSocket(request, listener);
+        client.dispatcher().executorService().shutdown();
+    }
+
+    private void output(final String txt) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showVibrations(Double.valueOf(txt), Double.valueOf(txt), Double.valueOf(txt));
+            }
+        });
+    }
+
+    String get_temperature(String text)
+    {
+        // get JSONObject from JSON file
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(text);
+            JSONObject data = obj.getJSONObject("data");
+            String value = data.getString("currentHumidity");
+            return value;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vibrations);
         anyChartView = findViewById(R.id.anychart_view);
-        url = "https://sensorapiturings.herokuapp.com/getCurrentVibrations";
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         anyChartView = findViewById(R.id.anychart_view);
-        requestQueue = Volley.newRequestQueue(this);
-        sendjsonrequest(url);
-    }
 
-    public void sendjsonrequest(String url){
-        progressBar.setVisibility(View.VISIBLE);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
 
-                try {
-                    String str = response.getString("currentX");
-                    double x = Double.valueOf(str);
-                    str = response.getString("currentY");
-                    double y = Double.valueOf(str);
-                    str = response.getString("currentZ");
-                    double z = Double.valueOf(str);
-                    showVibrations(x, y, z);
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Can't connect to server", Toast.LENGTH_SHORT).show();
-                    showVibrations(0,0,0);
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "Can't connect to server", Toast.LENGTH_SHORT).show();
-            }
-        }
-        );
-
-        requestQueue.add(jsonObjectRequest);
+        client = new OkHttpClient();
+        start();
     }
 
 
@@ -104,6 +156,7 @@ public class vibrations extends AppCompatActivity {
             cartesian.crosshair().enabled(true);
             cartesian.crosshair()
                     .yLabel(true)
+                    // TODO ystroke
                     .yStroke((Stroke) null, null, null, (String) null, (String) null);
 
             cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
@@ -113,19 +166,14 @@ public class vibrations extends AppCompatActivity {
             cartesian.yAxis(0).title("Number of Bottles Sold (thousands)");
             cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
 
-            seriesData.add(new CustomDataEntry("1986", 3.6, 2.3, 2.8));
-            seriesData.add(new CustomDataEntry("1987", 7.1, 4.0, 4.1));
-            seriesData.add(new CustomDataEntry("1988", 8.5, 6.2, 5.1));
-            seriesData.add(new CustomDataEntry("1989", 9.2, 11.8, 6.5));
-            seriesData.add(new CustomDataEntry("1990", 10.1, 13.0, 12.5));
-            seriesData.add(new CustomDataEntry("1991", 11.6, 13.9, 18.0));
-            seriesData.add(new CustomDataEntry("1992", 16.4, 18.0, 21.0));
-            seriesData.add(new CustomDataEntry("1993", 18.0, 23.3, 20.3));
+            //List<DataEntry> seriesData = new ArrayList<>();
+            seriesData.add(new CustomDataEntry(String.valueOf(year++), x, y, z));
 
+            set = Set.instantiate();
             set.data(seriesData);
-            Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
-            Mapping series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
-            Mapping series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
+            series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
+            series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
+            series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
 
             Line series1 = cartesian.line(series1Mapping);
             series1.name("Brandy");
@@ -172,16 +220,18 @@ public class vibrations extends AppCompatActivity {
 
         else
         {
-            //seriesData.add(new CustomDataEntry(String.valueOf(xcoordinate++), x, y, z));
-            //set.data(seriesData);
-        }
+            seriesData.add(new CustomDataEntry(String.valueOf(year++), x, y, z));
+            set.data(seriesData);
 
-        /*new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendjsonrequest(url);
-            }
-        }, 1000);*/
+            series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
+            series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
+            series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
+
+        }
+    }
+
+    public void change(View view) {
+        showVibrations(1.0, 1.5, 2.9);
     }
 
 
@@ -217,4 +267,17 @@ public class vibrations extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+    @Override
+    protected void onPause() {
+        ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
+        ws.close(1000, null);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        ws.close(1000, null);
+        super.onStop();
+    }
 }

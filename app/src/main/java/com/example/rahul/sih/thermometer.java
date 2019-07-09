@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -29,14 +30,93 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import okhttp3.OkHttpClient;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+
 public class thermometer extends AppCompatActivity {
 
     AnyChartView anyChartView;
-    RequestQueue requestQueue;
     String url;
     Boolean first = true;
     LinearGauge linearGauge;
     ProgressBar progressBar;
+    WebSocket ws;
+    private OkHttpClient client;
+
+
+    private final class EchoWebSocketListener extends WebSocketListener {
+        private static final int NORMAL_CLOSURE_STATUS = 1000;
+
+        @Override
+        public void onOpen(WebSocket webSocket, okhttp3.Response response) {
+            webSocket.send("Hello, it's SSaurel !");
+            webSocket.send("What's up ?");
+            webSocket.send(ByteString.decodeHex("deadbeef"));
+            //webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye !");
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            text = get_temperature(text);
+            output(text);
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            output("Receiving bytes : " + bytes.hex());
+        }
+
+        @Override
+        public void onClosing(WebSocket webSocket, int code, String reason) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null);
+        }
+
+        @Override
+        public void onFailure(WebSocket webSocket, Throwable t, okhttp3.Response response) {
+            output("Error : " + t.getMessage());
+        }
+    }
+
+    private void start() {
+        String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
+        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String echo = "ws://echo.websocket.org";
+        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        ws = client.newWebSocket(request, listener);
+        client.dispatcher().executorService().shutdown();
+        //ws.send("message");
+    }
+
+    private void output(final String txt) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showTemperature(Integer.valueOf(txt));
+            }
+        });
+    }
+
+    String get_temperature(String text)
+    {
+        // get JSONObject from JSON file
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(text);
+            JSONObject data = obj.getJSONObject("data");
+            String value = data.getString("currentHumidity");
+            return value;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    //
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,43 +124,19 @@ public class thermometer extends AppCompatActivity {
         setContentView(R.layout.activity_thermometer);
         anyChartView = findViewById(R.id.anychart_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
-        requestQueue = Volley.newRequestQueue(this);
-        url = "https://sensorapiturings.herokuapp.com/getCurrentTemperature";
-        sendjsonrequest(url);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        client = new OkHttpClient();
+
     }
 
 
-    public void sendjsonrequest(String url){
-        progressBar.setVisibility(View.VISIBLE);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
 
-                try {
-                    String str = response.getString("currentTemperature");
-                    int temp = Integer.valueOf(str);
-                    showTemperature(temp);
 
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "err", Toast.LENGTH_SHORT).show();
-                    showTemperature(50);
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
-            }
-        }
-        );
-
-        requestQueue.add(jsonObjectRequest);
-    }
 
     void showTemperature(int temp)
     {
+        Toast.makeText(this, String.valueOf(temp), Toast.LENGTH_SHORT).show();
         progressBar.setVisibility(View.INVISIBLE);
         if(!first)
             linearGauge.data(new SingleValueDataSet(new Integer[] { temp }));
@@ -167,13 +223,6 @@ public class thermometer extends AppCompatActivity {
 
             first = false;
         }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendjsonrequest(url);
-            }
-        }, 5000);
     }
 
     public void openHumidity(View view) {
@@ -189,6 +238,7 @@ public class thermometer extends AppCompatActivity {
 
 
     public void openPressure(View view) {
+
         Intent intent = new Intent(getApplicationContext(), pressure.class);
         startActivity(intent);
     }
@@ -196,5 +246,22 @@ public class thermometer extends AppCompatActivity {
     public void openVibrations(View view) {
         Intent intent = new Intent(getApplicationContext(), vibrations.class);
         startActivity(intent);
+    }
+
+
+    @Override
+    protected void onPause() {
+        if(anyChartView != null)
+        {
+            ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        if(ws != null)
+            ws.close(1000, "");
+        super.onStop();
     }
 }

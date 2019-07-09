@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,15 +28,90 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+
 public class humidity extends AppCompatActivity {
 
     AnyChartView anyChartView;
-    RequestQueue requestQueue;
     String url;
     Boolean first = true;
     Pie pie;
     ProgressBar progressBar;
     TextView currentTemperature, currentPpm;
+    WebSocket ws;
+    private OkHttpClient client;
+
+
+    private final class EchoWebSocketListener extends WebSocketListener {
+        private static final int NORMAL_CLOSURE_STATUS = 1000;
+
+        @Override
+        public void onOpen(WebSocket webSocket, okhttp3.Response response) {
+            /*webSocket.send("Hello, it's SSaurel !");
+            webSocket.send("What's up ?");
+            webSocket.send(ByteString.decodeHex("deadbeef"));
+            //webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye !");*/
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            text = get_temperature(text);
+            output(text);
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            output("Receiving bytes : " + bytes.hex());
+        }
+
+        @Override
+        public void onClosing(WebSocket webSocket, int code, String reason) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null);
+        }
+
+        @Override
+        public void onFailure(WebSocket webSocket, Throwable t, okhttp3.Response response) {
+            output("Error : " + t.getMessage());
+        }
+    }
+
+    private void start() {
+        String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
+        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String echo = "ws://echo.websocket.org";
+        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        ws = client.newWebSocket(request, listener);
+        client.dispatcher().executorService().shutdown();
+    }
+
+    private void output(final String txt) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showHumidity(Integer.valueOf(txt), Integer.valueOf(txt), Integer.valueOf(txt));
+            }
+        });
+    }
+
+    String get_temperature(String text)
+    {
+        // get JSONObject from JSON file
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(text);
+            JSONObject data = obj.getJSONObject("data");
+            String value = data.getString("currentHumidity");
+            return value;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,43 +122,10 @@ public class humidity extends AppCompatActivity {
         anyChartView = findViewById(R.id.anychart_view);
         currentTemperature = findViewById(R.id.currentTemperature);
         currentPpm = findViewById(R.id.currentPpm);
-        progressBar.setVisibility(View.VISIBLE);
-        requestQueue = Volley.newRequestQueue(this);
-        url = "https://sensorapiturings.herokuapp.com/getCurrentTemperature";
-        sendjsonrequest(url);
-    }
+        //progressBar.setVisibility(View.VISIBLE);
 
-    public void sendjsonrequest(String url){
-        progressBar.setVisibility(View.VISIBLE);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-
-                try {
-                    String hum = response.getString("currentHumidity");
-                    int humidity = Integer.valueOf(hum);
-                    String temp = response.getString("currentTemperature");
-                    int temperature = Integer.valueOf(temp);
-                    temp = response.getString("currentPpm");
-                    double ppm = Double.valueOf(temp);
-                    int intppm = (int) ppm;
-                    showHumidity(humidity, temperature, intppm);
-
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Can't connect to internet", Toast.LENGTH_SHORT).show();
-                    showHumidity(0, 0, 0);
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
-            }
-        }
-        );
-
-        requestQueue.add(jsonObjectRequest);
+        client = new OkHttpClient();
+        start();
     }
 
     void showHumidity(int humidity, int temperature, int ppm)
@@ -101,13 +144,6 @@ public class humidity extends AppCompatActivity {
             anyChartView.setChart(pie);
             first = false;
         }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendjsonrequest(url);
-            }
-        }, 5000);
     }
 
     public void openHumidity(View view) {
@@ -130,5 +166,18 @@ public class humidity extends AppCompatActivity {
     public void openVibrations(View view) {
         Intent intent = new Intent(getApplicationContext(), vibrations.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
+        ws.close(1000, null);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        ws.close(1000, null);
+        super.onStop();
     }
 }

@@ -65,6 +65,7 @@
         android:layout_marginTop="400dp"
         android:layout_marginLeft="300dp"
         android:background="#FF0000"
+        android:onClick="change"
         android:clickable="true"
         android:src="@drawable/stop_button"
         android:backgroundTint="#ff0000"/>
