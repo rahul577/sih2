@@ -127,7 +127,7 @@ public class thermometer extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
         client = new OkHttpClient();
-
+        start();
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.rahul.sih;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +22,11 @@ import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Pie;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +49,7 @@ public class humidity extends AppCompatActivity {
     TextView currentTemperature, currentPpm;
     WebSocket ws;
     private OkHttpClient client;
+    PieChart pieChart;
 
 
     private final class EchoWebSocketListener extends WebSocketListener {
@@ -115,36 +122,87 @@ public class humidity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_humidity);
-        pie = AnyChart.pie();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        anyChartView = findViewById(R.id.anychart_view);
         currentTemperature = findViewById(R.id.currentTemperature);
         currentPpm = findViewById(R.id.currentPpm);
-        //progressBar.setVisibility(View.VISIBLE);
+
+        pieChart = findViewById(R.id.piechart);
 
         client = new OkHttpClient();
         start();
     }
 
+
     void showHumidity(int humidity, int temperature, int ppm)
     {
-        currentTemperature.setText(String.valueOf(temperature) + "°");
-        currentPpm.setText(String.valueOf(ppm));
-        progressBar.setVisibility(View.INVISIBLE);
-        List<DataEntry> data = new ArrayList<>();
-        data.add(new ValueDataEntry("Humidity", humidity));
-        data.add(new ValueDataEntry("", 100 - humidity));
-
-        pie.data(data);
-
-        if(first)
+        if(!first)
         {
-            anyChartView.setChart(pie);
+            pieChart.setUsePercentValues(true);
+            pieChart.getDescription().setEnabled(false);
+            pieChart.setExtraOffsets(5, 10, 5, 5);
+
+            pieChart.setDragDecelerationFrictionCoef(0.95f);
+
+            pieChart.setDrawHoleEnabled(true);
+            pieChart.setHoleColor(Color.WHITE);
+            pieChart.setTransparentCircleRadius(61f);
+
+            ArrayList<PieEntry> yValues = new ArrayList<>();
+
+            yValues.add(new PieEntry(34f, "Bangladesh"));
+            yValues.add(new PieEntry(23f, "Bangladesh"));
+            yValues.add(new PieEntry(14f, "Bangladesh"));
+            yValues.add(new PieEntry(35f, "Bangladesh"));
+            yValues.add(new PieEntry(40f, "Bangladesh"));
+            yValues.add(new PieEntry(23f, "Bangladesh"));
+
+            /*yValues.add(new PieEntry(humidity, "Humidity"));
+            yValues.add(new PieEntry(100 - humidity, "Bangladesh"));*/
+
+
+            PieDataSet dataSet = new PieDataSet(yValues, "Countries");
+            dataSet.setSliceSpace(3f);
+            dataSet.setSelectionShift(5f);
+            dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
+
+            PieData data = new PieData((dataSet));
+            data.setValueTextSize(10f);
+            data.setValueTextColor(Color.YELLOW);
+
+            pieChart.setData(data);
+
             first = false;
+
+            ws.close(1000, "");
         }
+
+        else
+        {
+            ArrayList<PieEntry> yValues = new ArrayList<>();
+
+            yValues.add(new PieEntry(humidity, "Bangladesh"));
+            yValues.add(new PieEntry(100 - humidity, "Bangladesh"));
+
+            PieDataSet dataSet = new PieDataSet(yValues, "Countries");
+            dataSet.setSliceSpace(3f);
+            dataSet.setSelectionShift(5f);
+            dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
+
+            PieData data = new PieData((dataSet));
+            data.setValueTextSize(10f);
+            data.setValueTextColor(Color.YELLOW);
+
+            pieChart.setData(data);
+
+            pieChart.notifyDataSetChanged(); // let the chart know it's data changed
+            pieChart.invalidate();
+        }
+
     }
+
 
     public void openHumidity(View view) {
         Intent intent = new Intent(getApplicationContext(), humidity.class);
@@ -170,7 +228,6 @@ public class humidity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
         ws.close(1000, null);
         super.onPause();
     }

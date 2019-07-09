@@ -27,6 +27,12 @@ import com.anychart.enums.Anchor;
 import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,20 +47,15 @@ import okio.ByteString;
 
 public class vibrations extends AppCompatActivity {
 
-
-    AnyChartView anyChartView;
-    RequestQueue requestQueue;
-    String url;
     Boolean first = true;
     ProgressBar progressBar;
-    int xcoordinate;
     List<DataEntry> seriesData = new ArrayList<>();
-    Set set;
-    Cartesian cartesian;
-    Mapping series1Mapping, series2Mapping, series3Mapping;
-    int year = 0;
     WebSocket ws;
     private OkHttpClient client;
+    int val = 0;
+    ArrayList<Entry> yValues;
+    int x_c = 0;
+    LineChart lineChart;
 
 
     private final class EchoWebSocketListener extends WebSocketListener {
@@ -104,7 +105,7 @@ public class vibrations extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showVibrations(Double.valueOf(txt), Double.valueOf(txt), Double.valueOf(txt));
+                showVibrations(Integer.valueOf(txt));
             }
         });
     }
@@ -131,118 +132,44 @@ public class vibrations extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vibrations);
-        anyChartView = findViewById(R.id.anychart_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        anyChartView = findViewById(R.id.anychart_view);
-
+        lineChart = findViewById(R.id.lineChart);
+        yValues = new ArrayList<>();
 
         client = new OkHttpClient();
         start();
     }
 
 
-    void showVibrations(double x, double y, double z)
+    void showVibrations(int humidity)
     {
-        progressBar.setVisibility(View.INVISIBLE);
-        if(first)
+        if(!first)
         {
-            first = false;
-            Cartesian cartesian = AnyChart.line();
+            lineChart.setDragEnabled(true);
+            lineChart.setScaleEnabled(false);
 
-            cartesian.animation(true);
+            yValues.add(new Entry(x_c++, humidity));
 
-            cartesian.padding(10d, 20d, 5d, 20d);
-
-            cartesian.crosshair().enabled(true);
-            cartesian.crosshair()
-                    .yLabel(true)
-                    // TODO ystroke
-                    .yStroke((Stroke) null, null, null, (String) null, (String) null);
-
-            cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
-
-            cartesian.title("Trend of Sales of the Most Popular Products of ACME Corp.");
-
-            cartesian.yAxis(0).title("Number of Bottles Sold (thousands)");
-            cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
-
-            //List<DataEntry> seriesData = new ArrayList<>();
-            seriesData.add(new CustomDataEntry(String.valueOf(year++), x, y, z));
-
-            set = Set.instantiate();
-            set.data(seriesData);
-            series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
-            series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
-            series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
-
-            Line series1 = cartesian.line(series1Mapping);
-            series1.name("Brandy");
-            series1.hovered().markers().enabled(true);
-            series1.hovered().markers()
-                    .type(MarkerType.CIRCLE)
-                    .size(4d);
-            series1.tooltip()
-                    .position("right")
-                    .anchor(Anchor.LEFT_CENTER)
-                    .offsetX(5d)
-                    .offsetY(5d);
-
-            Line series2 = cartesian.line(series2Mapping);
-            series2.name("Whiskey");
-            series2.hovered().markers().enabled(true);
-            series2.hovered().markers()
-                    .type(MarkerType.CIRCLE)
-                    .size(4d);
-            series2.tooltip()
-                    .position("right")
-                    .anchor(Anchor.LEFT_CENTER)
-                    .offsetX(5d)
-                    .offsetY(5d);
-
-            Line series3 = cartesian.line(series3Mapping);
-            series3.name("Tequila");
-            series3.hovered().markers().enabled(true);
-            series3.hovered().markers()
-                    .type(MarkerType.CIRCLE)
-                    .size(4d);
-            series3.tooltip()
-                    .position("right")
-                    .anchor(Anchor.LEFT_CENTER)
-                    .offsetX(5d)
-                    .offsetY(5d);
-
-            cartesian.legend().enabled(true);
-            cartesian.legend().fontSize(13d);
-            cartesian.legend().padding(0d, 0d, 10d, 0d);
-
-            anyChartView.setChart(cartesian);
+            LineDataSet set1 = new LineDataSet(yValues, "Data set 1");
+            LineData lineData = new LineData(set1);
+            lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+            //lineChart.animateY(1000);
+            lineChart.setData(lineData);
         }
 
         else
         {
-            seriesData.add(new CustomDataEntry(String.valueOf(year++), x, y, z));
-            set.data(seriesData);
 
-            series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
-            series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
-            series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
+            yValues.add(new Entry(x_c++, humidity + x_c));
 
+            LineDataSet set1 = new LineDataSet(yValues, "Data set 1");
+            LineData lineData = new LineData(set1);
+            lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+            lineChart.setData(lineData);
+
+            lineChart.notifyDataSetChanged(); // let the chart know it's data changed
+            lineChart.invalidate();
         }
-    }
-
-    public void change(View view) {
-        showVibrations(1.0, 1.5, 2.9);
-    }
-
-
-    private class CustomDataEntry extends ValueDataEntry {
-
-        CustomDataEntry(String x, Number value, Number value2, Number value3) {
-            super(x, value);
-            setValue("value2", value2);
-            setValue("value3", value3);
-        }
-
     }
 
     public void openHumidity(View view) {
@@ -270,7 +197,6 @@ public class vibrations extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
         ws.close(1000, null);
         super.onPause();
     }

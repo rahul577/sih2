@@ -15,11 +15,11 @@
             android:layout_width="match_parent"
             android:layout_height="500dp">
 
-            <com.anychart.AnyChartView
+            <com.github.mikephil.charting.charts.LineChart
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/anychart_view">
-            </com.anychart.AnyChartView>
+                android:id="@+id/lineChart"/>
+
         </LinearLayout>
 
         <LinearLayout
