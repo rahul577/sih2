@@ -1,28 +1,12 @@
 package com.example.rahul.sih;
 
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.anychart.AnyChart;
-import com.anychart.AnyChartView;
-import com.anychart.chart.common.dataentry.SingleValueDataSet;
-import com.anychart.charts.CircularGauge;
-import com.anychart.enums.Anchor;
-import com.anychart.graphics.vector.SolidFill;
-import com.anychart.graphics.vector.text.HAlign;
 import com.github.anastr.speedviewlib.SpeedView;
 
 import org.json.JSONException;
@@ -33,7 +17,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class pressure extends AppCompatActivity {
+public class pressure extends AppCompatActivity implements ExampleDialog.ExampleDialogListener {
 
     ProgressBar progressBar;
     WebSocket ws;
@@ -89,7 +73,7 @@ public class pressure extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(), txt, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), txt, Toast.LENGTH_SHORT).show();
                 show_pressure(Integer.valueOf(txt));
             }
         });
@@ -117,10 +101,6 @@ public class pressure extends AppCompatActivity {
 
 
 
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +114,15 @@ public class pressure extends AppCompatActivity {
 
         client = new OkHttpClient();
         start();
+
+        speedometer.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                openDialog();
+                Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
     }
 
@@ -172,5 +161,16 @@ public class pressure extends AppCompatActivity {
         if(ws != null)
             ws.close(1000, "");
         super.onStop();
+    }
+
+    void openDialog()
+    {
+        ExampleDialog exampleDialog = new ExampleDialog();
+        exampleDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    @Override
+    public void applyTexts(String username, String password) {
+        Toast.makeText(this, username + password, Toast.LENGTH_SHORT).show();
     }
 }

@@ -35,7 +35,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class thermometer extends AppCompatActivity {
+public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener{
 
     AnyChartView anyChartView;
     String url;
@@ -128,6 +128,15 @@ public class thermometer extends AppCompatActivity {
 
         client = new OkHttpClient();
         start();
+
+        anyChartView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                openDialog();
+                Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 
 
@@ -263,5 +272,16 @@ public class thermometer extends AppCompatActivity {
         if(ws != null)
             ws.close(1000, "");
         super.onStop();
+    }
+
+    void openDialog()
+    {
+        ExampleDialog exampleDialog = new ExampleDialog();
+        exampleDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    @Override
+    public void applyTexts(String username, String password) {
+        Toast.makeText(this, username + password, Toast.LENGTH_SHORT).show();
     }
 }

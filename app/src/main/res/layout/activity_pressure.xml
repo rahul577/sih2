@@ -28,7 +28,15 @@ tools:context="com.example.rahul.sih.pressure">
         android:orientation="horizontal"
         android:layout_marginTop="7dp">
 
-        <Button
+        <com.iammert.library.readablebottombar.ReadableBottomBar
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="500dp"
+            app:rbb_activeItemType="text"
+            android:id="@+id/bottomTab"
+            app:rbb_tabs="@xml/tabs" />
+
+        <!--<Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
             android:text="Press"
@@ -50,7 +58,7 @@ tools:context="com.example.rahul.sih.pressure">
             android:layout_width="89dp"
             android:layout_height="wrap_content"
             android:text="Vibra"
-            android:onClick="openVibrations"/>
+            android:onClick="openVibrations"/>-->
 
     </LinearLayout>
 
