@@ -15,11 +15,11 @@ tools:context="com.example.rahul.sih.pressure">
         android:layout_width="match_parent"
         android:layout_height="500dp">
 
-        <com.anychart.AnyChartView
+        <com.github.anastr.speedviewlib.SpeedView
+            android:id="@+id/speedView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/anychart_view">
-        </com.anychart.AnyChartView>
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 
     <LinearLayout

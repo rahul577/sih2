@@ -23,6 +23,7 @@ import com.anychart.charts.CircularGauge;
 import com.anychart.enums.Anchor;
 import com.anychart.graphics.vector.SolidFill;
 import com.anychart.graphics.vector.text.HAlign;
+import com.github.anastr.speedviewlib.SpeedView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,21 +35,10 @@ import okio.ByteString;
 
 public class pressure extends AppCompatActivity {
 
-    AnyChartView anyChartView;
-    String url;
-    Boolean first = true;
-    CircularGauge circularGauge;
     ProgressBar progressBar;
     WebSocket ws;
-    private static final int NORMAL_CLOSURE_STATUS = 1000;
     private OkHttpClient client;
-
-
-    void close()
-    {
-        ws.close(NORMAL_CLOSURE_STATUS, "Goodbye !");
-    }
-
+    SpeedView speedometer;
 
 
     private final class EchoWebSocketListener extends WebSocketListener {
@@ -100,9 +90,13 @@ public class pressure extends AppCompatActivity {
             @Override
             public void run() {
                 Toast.makeText(getApplicationContext(), txt, Toast.LENGTH_SHORT).show();
-                showPressure(Double.valueOf(txt));
+                show_pressure(Integer.valueOf(txt));
             }
         });
+    }
+
+    private void show_pressure(Integer integer) {
+        speedometer.speedTo(integer, 300);
     }
 
     String get_temperature(String text)
@@ -132,125 +126,17 @@ public class pressure extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pressure);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        circularGauge = AnyChart.circular();
         progressBar.setVisibility(View.INVISIBLE);
-        anyChartView = findViewById(R.id.anychart_view);
+
+        speedometer = findViewById(R.id.speedView);
+
+        speedometer.setWithTremble(false);
 
         client = new OkHttpClient();
         start();
 
     }
 
-    void showPressure(double pressure)
-    {
-        Toast.makeText(this, String.valueOf(pressure), Toast.LENGTH_SHORT).show();
-        progressBar.setVisibility(View.INVISIBLE);
-        if(first)
-        {
-            circularGauge = AnyChart.circular();
-
-            circularGauge.fill("#fff")
-                    .stroke(null)
-                    .padding(0, 0, 0, 0)
-                    .margin(30, 30, 30, 30);
-            circularGauge.startAngle(0)
-                    .sweepAngle(360);
-
-            double currentValue = 13.8D;
-            circularGauge.data(new SingleValueDataSet(new Double[] { pressure }));
-
-            circularGauge.axis(0)
-                    .startAngle(-150)
-                    .radius(80)
-                    .sweepAngle(300)
-                    .width(3)
-                    .ticks("{ type: 'line', length: 4, position: 'outside' }");
-
-            circularGauge.axis(0).labels().position("outside");
-
-            circularGauge.axis(0).scale()
-                    .minimum(0)
-                    .maximum(140);
-
-            circularGauge.axis(0).scale()
-                    .ticks("{interval: 10}")
-                    .minorTicks("{interval: 10}");
-
-            circularGauge.needle(0)
-                    .stroke(null)
-                    .startRadius("6%")
-                    .endRadius("38%")
-                    .startWidth("2%")
-                    .endWidth(0);
-
-            circularGauge.cap()
-                    .radius("4%")
-                    .enabled(true)
-                    .stroke(null);
-
-            circularGauge.label(0)
-                    .text("<span style=\"font-size: 25\">Wind Speed</span>")
-                    .useHtml(true)
-                    .hAlign(HAlign.CENTER);
-            circularGauge.label(0)
-                    .anchor(Anchor.CENTER_TOP)
-                    .offsetY(100)
-                    .padding(15, 20, 0, 0);
-
-            circularGauge.label(1)
-                    .text("<span style=\"font-size: 20\">" + pressure + "</span>")
-                    .useHtml(true)
-                    .hAlign(HAlign.CENTER);
-            circularGauge.label(1)
-                    .anchor(Anchor.CENTER_TOP)
-                    .offsetY(-100)
-                    .padding(5, 10, 0, 0)
-                    .background("{fill: 'none', stroke: '#c1c1c1', corners: 3, cornerType: 'ROUND'}");
-
-            circularGauge.range(0,
-                    "{\n" +
-                            "    from: 0,\n" +
-                            "    to: 25,\n" +
-                            "    position: 'inside',\n" +
-                            "    fill: 'green 0.5',\n" +
-                            "    stroke: '1 #000',\n" +
-                            "    startSize: 6,\n" +
-                            "    endSize: 6,\n" +
-                            "    radius: 80,\n" +
-                            "    zIndex: 1\n" +
-                            "  }");
-
-            circularGauge.range(1,
-                    "{\n" +
-                            "    from: 80,\n" +
-                            "    to: 140,\n" +
-                            "    position: 'inside',\n" +
-                            "    fill: 'red 0.5',\n" +
-                            "    stroke: '1 #000',\n" +
-                            "    startSize: 6,\n" +
-                            "    endSize: 6,\n" +
-                            "    radius: 80,\n" +
-                            "    zIndex: 1\n" +
-                            "  }");
-
-            anyChartView.setChart(circularGauge);
-
-            first = false;
-        }
-        else
-        {
-            circularGauge.data(new SingleValueDataSet(new Double[] { pressure }));
-            circularGauge.label(1)
-                    .text("<span style=\"font-size: 20\">" + pressure + "</span>")
-                    .useHtml(true)
-                    .hAlign(HAlign.CENTER);
-            circularGauge.label(1)
-                    .anchor(Anchor.CENTER_TOP)
-                    .offsetY(-100)
-                    .padding(5, 10, 0, 0)
-                    .background("{fill: 'none', stroke: '#c1c1c1', corners: 3, cornerType: 'ROUND'}");
-        }
-    }
 
 
     public void openHumidity(View view) {
@@ -277,11 +163,7 @@ public class pressure extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if(anyChartView != null)
-        {
-            ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
-        }
-
+        ws.close(1000, "");
         super.onPause();
     }
 
