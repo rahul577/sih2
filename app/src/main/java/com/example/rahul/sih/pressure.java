@@ -3,6 +3,7 @@ package com.example.rahul.sih;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -30,10 +31,7 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
     WebSocket ws;
     private OkHttpClient client;
     SpeedView speedometer;
-    ReadableBottomBar bottomBar;
-    RelativeLayout layout;
     PopupMenu popup;
-    Boolean make_list = true;
     List list;
     String str = "";
     int current = 1;
@@ -44,7 +42,7 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
             return;
 
         list.add(idx);
-        showPopup(findViewById(R.id.bottomTab));
+        showPopup(findViewById(R.id.relativeLayout));
     }
 
 
@@ -82,11 +80,10 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
     }
 
     private void start() {
-        Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
         String local = "ws://172.16.166.209:5000/echo?connectionType=client";
         String echo = "ws://echo.websocket.org";
-        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         ws = client.newWebSocket(request, listener);
         client.dispatcher().executorService().shutdown();
@@ -96,8 +93,12 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if(txt == null)
+                    return;
                 List<String> list;
                 list = get_temperature(txt);
+                if(list == null)
+                    return;
                 add_index(Integer.parseInt(list.get(0)));
                 str += list.get(0);
                 if(current == Integer.parseInt(list.get(0)))
@@ -134,11 +135,6 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
-        bottomBar = findViewById(R.id.bottomTab);
-        //bottomBar.selectItem(0);
-
-        layout = findViewById(R.id.relativeLayout);
-
         speedometer = findViewById(R.id.speedView);
 
         speedometer.setWithTremble(false);
@@ -147,6 +143,7 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
         speedometer.setMinSpeed(90000);
 
         list = new ArrayList<Integer>();
+        showPopup(findViewById(R.id.relativeLayout));
 
         client = new OkHttpClient();
         start();
@@ -155,41 +152,6 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
             @Override
             public boolean onLongClick(View view) {
                 openDialog();
-                Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        bottomBar.setOnItemSelectListener(new ReadableBottomBar.ItemSelectListener() {
-            @Override
-            public void onItemSelected(int i) {
-                switch (i)
-                {
-                    case 0:
-                        if(popup != null)
-                            popup.show();
-                        break;
-
-                    case 1:
-                        openTemperature();
-                        break;
-
-                    case 2:
-                        openHumidity();
-                        break;
-
-                    case 3:
-                        openVibrations();
-                        break;
-                }
-            }
-        });
-
-        bottomBar.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Toast.makeText(getApplication(), "popup", Toast.LENGTH_SHORT).show();
-                showPopup(view);
                 return false;
             }
         });
@@ -211,45 +173,26 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
     public boolean onMenuItemClick(MenuItem item) {
         String str = String.valueOf(item.getTitle());
         str = str.substring(4);
-        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
         current = Integer.parseInt(str);
-        /*switch (item.getItemId()) {
-
-            case R.id.item1:
-                Toast.makeText(this, String.valueOf(item.getTitle()), Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.item2:
-                Toast.makeText(this, "Item 2 clicked", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.item3:
-                Toast.makeText(this, "Item 3 clicked", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.item4:
-                Toast.makeText(this, "Item 4 clicked", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
-                return false;
-        }*/
         return true;
     }
 
-    public void openHumidity() {
+    public void openHumidity(View v) {
         Intent intent = new Intent(getApplicationContext(), humidity.class);
         startActivity(intent);
     }
 
 
-    public void openTemperature() {
+    public void openTemperature(View v) {
         Intent intent = new Intent(getApplicationContext(), thermometer.class);
         startActivity(intent);
     }
 
 
-    public void openPressure() {
-        Intent intent = new Intent(getApplicationContext(), pressure.class);
-        startActivity(intent);
+    public void openPressure(View v) {
+        popup.show();
     }
-    public void openVibrations() {
+    public void openVibrations(View v) {
         Intent intent = new Intent(getApplicationContext(), vibrations.class);
         startActivity(intent);
     }

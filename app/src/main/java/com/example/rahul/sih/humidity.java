@@ -65,7 +65,6 @@ public class humidity extends AppCompatActivity {
 
         @Override
         public void onMessage(WebSocket webSocket, String text) {
-            text = get_temperature(text);
             output(text);
         }
 
@@ -89,7 +88,7 @@ public class humidity extends AppCompatActivity {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
         String local = "ws://172.16.166.209:5000/echo?connectionType=client";
         String echo = "ws://echo.websocket.org";
-        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         ws = client.newWebSocket(request, listener);
         client.dispatcher().executorService().shutdown();
@@ -99,7 +98,10 @@ public class humidity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showHumidity(Integer.valueOf(txt), Integer.valueOf(txt), Integer.valueOf(txt));
+                String value = get_temperature(txt);
+                if(value == null)
+                    return;
+                showHumidity(Integer.valueOf(value), Integer.valueOf(value), Integer.valueOf(value));
             }
         });
     }
@@ -132,7 +134,7 @@ public class humidity extends AppCompatActivity {
         pieChart = findViewById(R.id.piechart);
 
         client = new OkHttpClient();
-        //start();
+        start();
     }
 
 
@@ -152,18 +154,11 @@ public class humidity extends AppCompatActivity {
 
             ArrayList<PieEntry> yValues = new ArrayList<>();
 
-            yValues.add(new PieEntry(34f, "Bangladesh"));
-            yValues.add(new PieEntry(23f, "Bangladesh"));
-            yValues.add(new PieEntry(14f, "Bangladesh"));
-            yValues.add(new PieEntry(35f, "Bangladesh"));
-            yValues.add(new PieEntry(40f, "Bangladesh"));
-            yValues.add(new PieEntry(23f, "Bangladesh"));
-
-            /*yValues.add(new PieEntry(humidity, "Humidity"));
-            yValues.add(new PieEntry(100 - humidity, "Bangladesh"));*/
+            yValues.add(new PieEntry(humidity, "Humidity"));
+            yValues.add(new PieEntry(100 - humidity, ""));
 
 
-            PieDataSet dataSet = new PieDataSet(yValues, "Countries");
+            PieDataSet dataSet = new PieDataSet(yValues, "Humidity");
             dataSet.setSliceSpace(3f);
             dataSet.setSelectionShift(5f);
             dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
@@ -183,10 +178,10 @@ public class humidity extends AppCompatActivity {
         {
             ArrayList<PieEntry> yValues = new ArrayList<>();
 
-            yValues.add(new PieEntry(humidity, "Bangladesh"));
-            yValues.add(new PieEntry(100 - humidity, "Bangladesh"));
+            yValues.add(new PieEntry(humidity, "Humidity"));
+            yValues.add(new PieEntry(100 - humidity, ""));
 
-            PieDataSet dataSet = new PieDataSet(yValues, "Countries");
+            PieDataSet dataSet = new PieDataSet(yValues, "Humidity");
             dataSet.setSliceSpace(3f);
             dataSet.setSelectionShift(5f);
             dataSet.setColors(ColorTemplate.JOYFUL_COLORS);

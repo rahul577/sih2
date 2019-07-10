@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.SingleValueDataSet;
 import com.anychart.charts.LinearGauge;
 import com.anychart.enums.Anchor;
+import com.anychart.enums.Layout;
 import com.anychart.enums.Orientation;
 import com.anychart.enums.Position;
 import com.anychart.scales.Base;
@@ -34,6 +36,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import okhttp3.OkHttpClient;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
@@ -42,14 +47,36 @@ import okio.ByteString;
 public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener{
 
     AnyChartView anyChartView;
-    String url;
     Boolean first = true;
     LinearGauge linearGauge;
     ProgressBar progressBar;
     WebSocket ws;
     private OkHttpClient client;
-    ReadableBottomBar bottomBar;
     PopupMenu popup;
+    int current = 1;
+    String str = "";
+    List list;
+
+
+    void add_index(int idx)
+    {
+        if(list.contains(idx))
+            return;
+
+        list.add(idx);
+        showPopup(findViewById(R.id.relativeLayout));
+    }
+
+    public void showPopup(View v) {
+        popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.popup_menu);
+
+        int idx = 0;
+        for (int i = 0; i < list.size(); i++) {
+            popup.getMenu().add(0, 0, idx++, "item" + String.valueOf( list.get(i) ));
+        }
+    }
 
 
     private final class EchoWebSocketListener extends WebSocketListener  {
@@ -65,7 +92,6 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
         @Override
         public void onMessage(WebSocket webSocket, String text) {
-            text = get_temperature(text);
             output(text);
         }
 
@@ -89,7 +115,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
         String local = "ws://172.16.166.209:5000/echo?connectionType=client";
         String echo = "ws://echo.websocket.org";
-        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         ws = client.newWebSocket(request, listener);
         client.dispatcher().executorService().shutdown();
@@ -100,20 +126,32 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showTemperature(Integer.valueOf(txt));
+                if(txt == null)
+                    return;
+                List<String> list;
+                list = get_temperature(txt);
+                if(list == null)
+                    return;
+                add_index(Integer.parseInt(list.get(0)));
+                str += list.get(0);
+                if(current == Integer.parseInt(list.get(0)))
+                    showTemperature(Integer.parseInt(list.get(1)));
             }
         });
     }
 
-    String get_temperature(String text)
+    List<String> get_temperature(String text)
     {
         // get JSONObject from JSON file
         JSONObject obj = null;
         try {
+            List<String> list = new ArrayList<String>();
             obj = new JSONObject(text);
             JSONObject data = obj.getJSONObject("data");
-            String value = data.getString("currentHumidity");
-            return value;
+            list.add(obj.getString("sensorIndex"));
+            //add new sensor
+            list.add(data.getString("currentTemperature"));
+            return list;
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -132,13 +170,11 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
-        bottomBar = findViewById(R.id.bottomTab);
-        bottomBar.selectItem(2);
+        list = new ArrayList<Integer>();
+        showPopup(findViewById(R.id.relativeLayout));
 
         client = new OkHttpClient();
-        //start();
-        showTemperature(10);
-        showTemperature(20);
+        start();
 
         anyChartView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -146,30 +182,6 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                 openDialog();
                 Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_SHORT).show();
                 return false;
-            }
-        });
-
-        bottomBar.setOnItemSelectListener(new ReadableBottomBar.ItemSelectListener() {
-            @Override
-            public void onItemSelected(int i) {
-                switch (i)
-                {
-                    case 0:
-                        openPressure();
-                        break;
-
-                    case 1:
-                        if(popup != null)
-                            popup.show();
-
-                    case 2:
-                        openHumidity();
-                        break;
-
-                    case 3:
-                        openVibrations();
-                        break;
-                }
             }
         });
     }
@@ -181,7 +193,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         progressBar.setVisibility(View.INVISIBLE);
         if(!first)
         {
-            APIlib.getInstance().setActiveAnyChartView(anyChartView);
+            //APIlib.getInstance().setActiveAnyChartView(anyChartView);
             linearGauge.data(new SingleValueDataSet(new Integer[] { temp }));
         }
         else
@@ -275,47 +287,29 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
     public boolean onMenuItemClick(MenuItem item) {
         String str = String.valueOf(item.getTitle());
         str = str.substring(4);
+        current = Integer.parseInt(str);
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
-        //current = Integer.parseInt(str);
-        /*switch (item.getItemId()) {
-
-            case R.id.item1:
-                Toast.makeText(this, String.valueOf(item.getTitle()), Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.item2:
-                Toast.makeText(this, "Item 2 clicked", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.item3:
-                Toast.makeText(this, "Item 3 clicked", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.item4:
-                Toast.makeText(this, "Item 4 clicked", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
-                return false;
-        }*/
         return true;
     }
 
-    public void openHumidity() {
+    public void openHumidity(View v) {
         Intent intent = new Intent(getApplicationContext(), humidity.class);
         startActivity(intent);
     }
 
 
-    public void openTemperature() {
-        Intent intent = new Intent(getApplicationContext(), thermometer.class);
-        startActivity(intent);
+    public void openTemperature(View v) {
+        Toast.makeText(getApplication(), String.valueOf(list.size()), Toast.LENGTH_SHORT).show();
+        popup.show();
     }
 
 
-    public void openPressure() {
-
+    public void openPressure(View v) {
         Intent intent = new Intent(getApplicationContext(), pressure.class);
         startActivity(intent);
     }
 
-    public void openVibrations() {
+    public void openVibrations(View v) {
         Intent intent = new Intent(getApplicationContext(), vibrations.class);
         startActivity(intent);
     }

@@ -26,16 +26,10 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:orientation="horizontal"
+            android:id="@+id/relativeLayout"
             android:layout_marginTop="7dp">
 
-            <com.iammert.library.readablebottombar.ReadableBottomBar
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                app:rbb_activeItemType="text"
-                android:id="@+id/bottomTab"
-                app:rbb_tabs="@xml/tabs" />
-
-            <!--<Button
+            <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
                 android:text="Press"
@@ -57,7 +51,7 @@
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
                 android:text="Vibra"
-                android:onClick="openVibrations"/>-->
+                android:onClick="openVibrations"/>
 
         </LinearLayout>
 
