@@ -2,19 +2,19 @@
 <tabs>
     <tab
         drawable="@drawable/ic_home_black_24dp"
-        text="@string/home" />
+        text="@string/Pressure" />
 
     <tab
         drawable="@drawable/ic_search_black_24dp"
-        text="@string/search" />
+        text="@string/Temperature" />
 
     <tab
         drawable="@drawable/ic_shopping_basket_black_24dp"
-        text="@string/bag" />
+        text="@string/Air_quality" />
 
     <tab
         drawable="@drawable/ic_favorite_black_24dp"
-        text="@string/favorite" />
+        text="@string/Vibrations" />
 
 
 </tabs>

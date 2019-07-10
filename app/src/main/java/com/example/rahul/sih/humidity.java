@@ -132,7 +132,7 @@ public class humidity extends AppCompatActivity {
         pieChart = findViewById(R.id.piechart);
 
         client = new OkHttpClient();
-        start();
+        //start();
     }
 
 
@@ -228,7 +228,8 @@ public class humidity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        ws.close(1000, null);
+        if(ws != null)
+            ws.close(1000, "");
         super.onPause();
     }
 

@@ -137,7 +137,7 @@ public class vibrations extends AppCompatActivity {
         yValues = new ArrayList<>();
 
         client = new OkHttpClient();
-        start();
+        //start();
     }
 
 
@@ -197,7 +197,8 @@ public class vibrations extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        ws.close(1000, null);
+        if(ws != null)
+            ws.close(1000, "");
         super.onPause();
     }
 

@@ -22,16 +22,16 @@ tools:context="com.example.rahul.sih.pressure">
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:orientation="horizontal"
+        android:id="@+id/relativeLayout"
         android:layout_marginTop="7dp">
 
         <com.iammert.library.readablebottombar.ReadableBottomBar
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:layout_marginTop="500dp"
             app:rbb_activeItemType="text"
             android:id="@+id/bottomTab"
             app:rbb_tabs="@xml/tabs" />
@@ -60,7 +60,7 @@ tools:context="com.example.rahul.sih.pressure">
             android:text="Vibra"
             android:onClick="openVibrations"/>-->
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>
 

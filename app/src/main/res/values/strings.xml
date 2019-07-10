@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">sih</string>
+    <string name="Pressure">Pressure</string>
+    <string name="Temperature">Temperature</string>
+    <string name="Air_quality">Air quality</string>
+    <string name="Vibrations">Vibrations</string>
 </resources>

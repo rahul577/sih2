@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -16,6 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.anychart.APIlib;
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.SingleValueDataSet;
@@ -25,6 +28,7 @@ import com.anychart.enums.Orientation;
 import com.anychart.enums.Position;
 import com.anychart.scales.Base;
 import com.anychart.scales.Linear;
+import com.iammert.library.readablebottombar.ReadableBottomBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +39,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener{
+public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener{
 
     AnyChartView anyChartView;
     String url;
@@ -44,9 +48,11 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
     ProgressBar progressBar;
     WebSocket ws;
     private OkHttpClient client;
+    ReadableBottomBar bottomBar;
+    PopupMenu popup;
 
 
-    private final class EchoWebSocketListener extends WebSocketListener {
+    private final class EchoWebSocketListener extends WebSocketListener  {
         private static final int NORMAL_CLOSURE_STATUS = 1000;
 
         @Override
@@ -126,8 +132,13 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
+        bottomBar = findViewById(R.id.bottomTab);
+        bottomBar.selectItem(2);
+
         client = new OkHttpClient();
-        start();
+        //start();
+        showTemperature(10);
+        showTemperature(20);
 
         anyChartView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -137,10 +148,31 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                 return false;
             }
         });
+
+        bottomBar.setOnItemSelectListener(new ReadableBottomBar.ItemSelectListener() {
+            @Override
+            public void onItemSelected(int i) {
+                switch (i)
+                {
+                    case 0:
+                        openPressure();
+                        break;
+
+                    case 1:
+                        if(popup != null)
+                            popup.show();
+
+                    case 2:
+                        openHumidity();
+                        break;
+
+                    case 3:
+                        openVibrations();
+                        break;
+                }
+            }
+        });
     }
-
-
-
 
 
     void showTemperature(int temp)
@@ -148,8 +180,10 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         Toast.makeText(this, String.valueOf(temp), Toast.LENGTH_SHORT).show();
         progressBar.setVisibility(View.INVISIBLE);
         if(!first)
+        {
+            APIlib.getInstance().setActiveAnyChartView(anyChartView);
             linearGauge.data(new SingleValueDataSet(new Integer[] { temp }));
-
+        }
         else
         {
             linearGauge = AnyChart.linear();
@@ -230,29 +264,58 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
             anyChartView.setChart(linearGauge);
 
+            anyChartView.setLicenceKey("bipinkumar919@gmail.com-a1db75f-64d914b5");
+            linearGauge.credits().enabled(false);
+
             first = false;
         }
     }
 
-    public void openHumidity(View view) {
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        String str = String.valueOf(item.getTitle());
+        str = str.substring(4);
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+        //current = Integer.parseInt(str);
+        /*switch (item.getItemId()) {
+
+            case R.id.item1:
+                Toast.makeText(this, String.valueOf(item.getTitle()), Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.item2:
+                Toast.makeText(this, "Item 2 clicked", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.item3:
+                Toast.makeText(this, "Item 3 clicked", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.item4:
+                Toast.makeText(this, "Item 4 clicked", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return false;
+        }*/
+        return true;
+    }
+
+    public void openHumidity() {
         Intent intent = new Intent(getApplicationContext(), humidity.class);
         startActivity(intent);
     }
 
 
-    public void openTemperature(View view) {
+    public void openTemperature() {
         Intent intent = new Intent(getApplicationContext(), thermometer.class);
         startActivity(intent);
     }
 
 
-    public void openPressure(View view) {
+    public void openPressure() {
 
         Intent intent = new Intent(getApplicationContext(), pressure.class);
         startActivity(intent);
     }
 
-    public void openVibrations(View view) {
+    public void openVibrations() {
         Intent intent = new Intent(getApplicationContext(), vibrations.class);
         startActivity(intent);
     }
@@ -264,6 +327,8 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         {
             ((ViewGroup) anyChartView.getParent()).removeView(anyChartView);
         }
+        if(ws != null)
+            ws.close(1000, "");
         super.onPause();
     }
 
