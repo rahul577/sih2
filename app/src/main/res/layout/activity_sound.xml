@@ -4,43 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.rahul.sih.thermometer"
-    android:background="#303030">
+    tools:context="com.example.rahul.sih.sound">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#303030"
         android:orientation="vertical">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:background="#303030"
-            android:layout_height="485dp">
-
-            <com.anychart.AnyChartView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#303030"
-                android:id="@+id/anychart_view">
-            </com.anychart.AnyChartView>
-
-
-        </RelativeLayout>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Limit :75 °C"
-            android:layout_marginLeft="140dp"
-            android:textColor="#FFF"
-            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="500dp">
+
+            <com.github.anastr.speedviewlib.DeluxeSpeedView
+                android:id="@+id/speedView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
             android:orientation="horizontal"
             android:id="@+id/relativeLayout"
-            android:layout_marginTop="2dp">
+            android:layout_marginTop="7dp">
 
             <Button
                 android:layout_width="89dp"
@@ -68,19 +55,18 @@
 
         </LinearLayout>
 
-
-
     </LinearLayout>
 
-    <com.nightonke.boommenu.BoomMenuButton
-        android:id="@+id/bmb"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-
-        />
+        android:layout_marginTop="400dp"
+        android:layout_marginLeft="300dp"
+        android:background="#FF0000"
+        android:clickable="true"
+        android:src="@drawable/stop_button"
+        android:backgroundTint="#ff0000"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -92,3 +78,4 @@
         />
 
 </RelativeLayout>
+

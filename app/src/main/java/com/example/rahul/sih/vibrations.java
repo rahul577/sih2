@@ -1,9 +1,11 @@
 package com.example.rahul.sih;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -33,7 +35,14 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.HamButton;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,7 +54,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class vibrations extends AppCompatActivity {
+public class vibrations extends AppCompatActivity implements dialog_ota.OtaDialogListener{
 
     Boolean first = true;
     ProgressBar progressBar;
@@ -53,9 +62,10 @@ public class vibrations extends AppCompatActivity {
     WebSocket ws;
     private OkHttpClient client;
     int val = 0;
-    ArrayList<Entry> yValues;
     int x_c = 0;
     LineChart lineChart;
+    private BoomMenuButton bmb;
+    private final ArrayList<Pair> piecesAndButtons = new ArrayList<>();
 
 
     private final class EchoWebSocketListener extends WebSocketListener {
@@ -71,7 +81,6 @@ public class vibrations extends AppCompatActivity {
 
         @Override
         public void onMessage(WebSocket webSocket, String text) {
-            text = get_temperature(text);
             output(text);
         }
 
@@ -93,9 +102,10 @@ public class vibrations extends AppCompatActivity {
 
     private void start() {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
-        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String local = "ws://" + "172.16.168.45"  + ":5000/echo?connectionType=client";
+        //Toast.makeText(this, local, Toast.LENGTH_SHORT).show();
         String echo = "ws://echo.websocket.org";
-        okhttp3.Request request = new okhttp3.Request.Builder().url(url).build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         ws = client.newWebSocket(request, listener);
         client.dispatcher().executorService().shutdown();
@@ -105,20 +115,33 @@ public class vibrations extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showVibrations(Integer.valueOf(txt));
+                if(txt == null)
+                    return;
+                List<Float> list;
+                list = get_temperature(txt);
+                if(list == null)
+                    return;
+                showVibrations(list);
             }
         });
     }
 
-    String get_temperature(String text)
+    List<Float> get_temperature(String text)
     {
         // get JSONObject from JSON file
         JSONObject obj = null;
         try {
+            List<Float> list = new ArrayList<Float>();
             obj = new JSONObject(text);
             JSONObject data = obj.getJSONObject("data");
-            String value = data.getString("currentHumidity");
-            return value;
+            JSONArray arr = data.getJSONArray("currentVibration");
+
+            for(int i=0; i<arr.length(); i++){
+                String value = arr.getString(i);
+                list.add(Float.parseFloat(value));
+            }
+
+            return list;
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -134,38 +157,73 @@ public class vibrations extends AppCompatActivity {
         setContentView(R.layout.activity_vibrations);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         lineChart = findViewById(R.id.lineChart);
-        yValues = new ArrayList<>();
 
         client = new OkHttpClient();
-        //start();
+        start();
+
+        bmb = (BoomMenuButton) findViewById(R.id.bmb);
+        assert bmb != null;
+        bmb.setButtonEnum(ButtonEnum.Ham);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_1);
+        bmb.addBuilder(BuilderManager.getHamButtonBuilder());
+
+        BuilderManager.getHamButtonData(piecesAndButtons);
+        int position = 12;
+        bmb.setPiecePlaceEnum((PiecePlaceEnum) piecesAndButtons.get(position).first);
+        bmb.setButtonPlaceEnum((ButtonPlaceEnum) piecesAndButtons.get(position).second);
+        bmb.clearBuilders();
+        for (int i = 0; i < bmb.getPiecePlaceEnum().pieceNumber(); i++)
+        {
+            HamButton.Builder builder = BuilderManager.getHamButtonBuilder();
+            builder.listener(new OnBMClickListener() {
+                @Override
+                public void onBoomButtonClick(int index) {
+                    openOtaDialog();
+                }
+            });
+            bmb.addBuilder(builder);
+        }
     }
 
 
-    void showVibrations(int humidity)
+    void showVibrations(List<Float> list)
     {
         if(!first)
         {
+            ArrayList<Entry> yValues = new ArrayList<>();
             lineChart.setDragEnabled(true);
             lineChart.setScaleEnabled(false);
 
-            yValues.add(new Entry(x_c++, humidity));
+            Integer x_c = 0;
+
+            for(int i = 0; i < list.size(); i++)
+                yValues.add(new Entry(x_c++, list.get(i)));
 
             LineDataSet set1 = new LineDataSet(yValues, "Data set 1");
             LineData lineData = new LineData(set1);
             lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+            lineChart.getXAxis().setTextColor(Color.rgb(255,255,255));
+            lineChart.getAxisLeft().setTextColor(Color.rgb(255,255,255));
             //lineChart.animateY(1000);
             lineChart.setData(lineData);
         }
 
         else
         {
+            ArrayList<Entry> yValues = new ArrayList<>();
+            Integer x_c = 0;
 
-            yValues.add(new Entry(x_c++, humidity + x_c));
+            for(int i = 0; i < list.size(); i++)
+                yValues.add(new Entry(x_c++, list.get(i)));
 
             LineDataSet set1 = new LineDataSet(yValues, "Data set 1");
             LineData lineData = new LineData(set1);
             lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
             lineChart.setData(lineData);
+            lineChart.getXAxis().setTextColor(Color.rgb(255,255,255));
+            lineChart.getAxisLeft().setTextColor(Color.rgb(255,255,255));
+
 
             lineChart.notifyDataSetChanged(); // let the chart know it's data changed
             lineChart.invalidate();
@@ -208,4 +266,18 @@ public class vibrations extends AppCompatActivity {
             ws.close(1000, null);
         super.onStop();
     }
+
+    //
+
+    public void openOtaDialog() {
+        dialog_ota dialog = new dialog_ota();
+        dialog.show(getSupportFragmentManager(), "Ota dialog");
+    }
+
+    @Override
+    public void applyOtaTexts(String ip) {
+        Toast.makeText(this, ip, Toast.LENGTH_SHORT).show();
+    }
+
+    //
 }

@@ -1,81 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context="com.example.rahul.sih.pressure">
-
-<LinearLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="#303030"
+    tools:context="com.example.rahul.sih.pressure">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp">
+        android:layout_height="match_parent"
+        android:background="#303030"
+        android:orientation="vertical">
 
-        <com.github.anastr.speedviewlib.SpeedView
-            android:id="@+id/speedView"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="400dp"
+            android:background="#303030"
+            android:layout_marginTop="60dp">
+
+            <com.github.anastr.speedviewlib.SpeedView
+                android:id="@+id/speedView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="40dp"
+                app:sv_highSpeedColor="#47C1D3"
+                app:sv_lowSpeedColor="#7D83FF"
+                app:sv_lowSpeedPercent="33"
+                app:sv_mediumSpeedColor="#5CA6E3"
+                app:sv_mediumSpeedPercent="66"
+                app:sv_speedTextColor="#FFF"
+                app:sv_textColor="#fff"
+                app:sv_unit=" Bar"
+                app:sv_unitTextColor="#FFF"
+                android:background="#303030"
+
+
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Limit: 100 Bar"
+                android:layout_marginTop="305dp"
+                android:layout_marginLeft="130dp"
+                android:textSize="15sp"
+                android:textColor="#FFF"
+                />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="45dp"
+            android:background="#303030"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:onClick="openPressure"
+                android:text="Press" />
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:onClick="openTemperature"
+                android:text="Temp" />
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:onClick="openHumidity"
+                android:text="Humid" />
+
+            <Button
+                android:layout_width="89dp"
+                android:layout_height="wrap_content"
+                android:onClick="openVibrations"
+                android:text="Vibra" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:id="@+id/relativeLayout"
-        android:layout_marginTop="7dp">
+    <com.nightonke.boommenu.BoomMenuButton
+        android:id="@+id/bmb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
 
-        <Button
-            android:layout_width="89dp"
-            android:layout_height="wrap_content"
-            android:text="Press"
-            android:onClick="openPressure"/>
+        />
 
-        <Button
-            android:layout_width="89dp"
-            android:layout_height="wrap_content"
-            android:text="Temp"
-            android:onClick="openTemperature"/>
-
-        <Button
-            android:layout_width="89dp"
-            android:layout_height="wrap_content"
-            android:text="Humid"
-            android:onClick="openHumidity"/>
-
-        <Button
-            android:layout_width="89dp"
-            android:layout_height="wrap_content"
-            android:text="Vibra"
-            android:onClick="openVibrations"/>
-
-    </LinearLayout>
-
-</LinearLayout>
-
-<android.support.design.widget.FloatingActionButton
-    android:id="@+id/floatingActionButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="400dp"
-    android:layout_marginLeft="300dp"
-    android:background="#FF0000"
-    android:clickable="true"
-    android:src="@drawable/stop_button"
-    android:backgroundTint="#ff0000"/>
-
-<ProgressBar
-    android:id="@+id/progressBar"
-    style="?android:attr/progressBarStyleLarge"
-    android:layout_width="50dp"
-    android:layout_height="50dp"
-    android:layout_centerHorizontal="true"
-    android:layout_centerVertical="true"
-    />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
 
 </RelativeLayout>
 

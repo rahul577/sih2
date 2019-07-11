@@ -1,9 +1,13 @@
 package com.example.rahul.sih;
 
 import android.content.Intent;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Layout;
+import android.util.Log;
+import android.util.Pair;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -13,19 +17,26 @@ import android.widget.Toast;
 
 import com.github.anastr.speedviewlib.SpeedView;
 import com.iammert.library.readablebottombar.ReadableBottomBar;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.HamButton;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class pressure extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener {
+public class pressure extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener, dialog_ota.OtaDialogListener, TextToSpeech.OnInitListener {
 
     ProgressBar progressBar;
     WebSocket ws;
@@ -35,6 +46,9 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
     List list;
     String str = "";
     int current = 1;
+    private TextToSpeech tts;
+    private BoomMenuButton bmb;
+    private final ArrayList<Pair> piecesAndButtons = new ArrayList<>();
 
     void add_index(int idx)
     {
@@ -81,7 +95,8 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
 
     private void start() {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
-        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String local = "ws://" + "172.16.168.45" + ":5000/echo?connectionType=client";
+        Toast.makeText(this, local, Toast.LENGTH_SHORT).show();
         String echo = "ws://echo.websocket.org";
         okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
@@ -102,7 +117,7 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
                 add_index(Integer.parseInt(list.get(0)));
                 str += list.get(0);
                 if(current == Integer.parseInt(list.get(0)))
-                    speedometer.speedTo(Integer.parseInt(list.get(1)));
+                    speedometer.speedTo(Float.parseFloat(list.get(1)));
             }
         });
     }
@@ -139,11 +154,12 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
 
         speedometer.setWithTremble(false);
 
-        speedometer.setMaxSpeed(111000);
-        speedometer.setMinSpeed(90000);
+        speedometer.setMaxSpeed(2);
+        speedometer.setMinSpeed(0);
 
         list = new ArrayList<Integer>();
         showPopup(findViewById(R.id.relativeLayout));
+        tts = new TextToSpeech(this, this);
 
         client = new OkHttpClient();
         start();
@@ -151,10 +167,36 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
         speedometer.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                tts.setLanguage(Locale.US);
+                tts.speak("Danger ahead", TextToSpeech.QUEUE_ADD, null);
                 openDialog();
                 return false;
             }
         });
+
+        bmb = (BoomMenuButton) findViewById(R.id.bmb);
+        assert bmb != null;
+        bmb.setButtonEnum(ButtonEnum.Ham);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_1);
+        bmb.addBuilder(BuilderManager.getHamButtonBuilder());
+
+        BuilderManager.getHamButtonData(piecesAndButtons);
+        int position = 12;
+        bmb.setPiecePlaceEnum((PiecePlaceEnum) piecesAndButtons.get(position).first);
+        bmb.setButtonPlaceEnum((ButtonPlaceEnum) piecesAndButtons.get(position).second);
+        bmb.clearBuilders();
+        for (int i = 0; i < bmb.getPiecePlaceEnum().pieceNumber(); i++)
+        {
+            HamButton.Builder builder = BuilderManager.getHamButtonBuilder();
+            builder.listener(new OnBMClickListener() {
+                @Override
+                public void onBoomButtonClick(int index) {
+                    openOtaDialog();
+                }
+            });
+            bmb.addBuilder(builder);
+        }
 
     }
 
@@ -222,4 +264,61 @@ public class pressure extends AppCompatActivity implements ExampleDialog.Example
     public void applyTexts(String username, String password) {
         Toast.makeText(this, username + password, Toast.LENGTH_SHORT).show();
     }
+
+    //
+
+    public void openOtaDialog() {
+        dialog_ota dialog = new dialog_ota();
+        dialog.show(getSupportFragmentManager(), "Ota dialog");
+    }
+
+    @Override
+    public void applyOtaTexts(String ip) {
+        Toast.makeText(this, ip, Toast.LENGTH_SHORT).show();
+    }
+
+    //
+
+
+    @Override
+    public void onInit(int status) {
+
+        if (status == TextToSpeech.SUCCESS) {
+
+            int result = tts.setLanguage(Locale.US);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "This Language is not supported");
+            } else {
+
+            }
+
+        } else {
+            Log.e("TTS", "Initilization Failed!");
+        }
+
+    }
+
+    //
+
+    // create an action bar button
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // handle button activities
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
+        /*if (id == R.id.mybutton) {
+            // do something here
+        }*/
+        return super.onOptionsItemSelected(item);
+    }
+
+    //
 }

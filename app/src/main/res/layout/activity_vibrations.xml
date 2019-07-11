@@ -4,20 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#303030"
     tools:context="com.example.rahul.sih.vibrations">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#303030"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:background="#303030"
             android:layout_height="500dp">
 
             <com.github.mikephil.charting.charts.LineChart
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#303030"
                 android:id="@+id/lineChart"/>
 
         </LinearLayout>
@@ -26,7 +30,8 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:orientation="horizontal"
-            android:layout_marginTop="7dp">
+            android:background="#303030"
+            android:layout_marginTop="6dp">
 
             <Button
                 android:layout_width="89dp"
@@ -58,25 +63,19 @@
 
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+
+
+    <com.nightonke.boommenu.BoomMenuButton
+        android:id="@+id/bmb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="400dp"
-        android:layout_marginLeft="300dp"
-        android:background="#FF0000"
-        android:onClick="change"
-        android:clickable="true"
-        android:src="@drawable/stop_button"
-        android:backgroundTint="#ff0000"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         />
+
+
+
 
 </RelativeLayout>

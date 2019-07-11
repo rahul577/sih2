@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,12 @@ import com.anychart.enums.Position;
 import com.anychart.scales.Base;
 import com.anychart.scales.Linear;
 import com.iammert.library.readablebottombar.ReadableBottomBar;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.HamButton;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +51,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener{
+public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener,dialog_ota.OtaDialogListener{
 
     AnyChartView anyChartView;
     Boolean first = true;
@@ -56,6 +63,8 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
     int current = 1;
     String str = "";
     List list;
+    private BoomMenuButton bmb;
+    private final ArrayList<Pair> piecesAndButtons = new ArrayList<>();
 
 
     void add_index(int idx)
@@ -113,7 +122,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
     private void start() {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
-        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String local = "ws://" + "172.16.168.45" + ":5000/echo?connectionType=client";
         String echo = "ws://echo.websocket.org";
         okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
@@ -173,6 +182,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         list = new ArrayList<Integer>();
         showPopup(findViewById(R.id.relativeLayout));
 
+        showTemperature(50);
         client = new OkHttpClient();
         start();
 
@@ -184,12 +194,35 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                 return false;
             }
         });
+
+        bmb = (BoomMenuButton) findViewById(R.id.bmb);
+        assert bmb != null;
+        bmb.setButtonEnum(ButtonEnum.Ham);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_1);
+        bmb.addBuilder(BuilderManager.getHamButtonBuilder());
+
+        BuilderManager.getHamButtonData(piecesAndButtons);
+        int position = 12;
+        bmb.setPiecePlaceEnum((PiecePlaceEnum) piecesAndButtons.get(position).first);
+        bmb.setButtonPlaceEnum((ButtonPlaceEnum) piecesAndButtons.get(position).second);
+        bmb.clearBuilders();
+        for (int i = 0; i < bmb.getPiecePlaceEnum().pieceNumber(); i++)
+        {
+            HamButton.Builder builder = BuilderManager.getHamButtonBuilder();
+            builder.listener(new OnBMClickListener() {
+                @Override
+                public void onBoomButtonClick(int index) {
+                    openOtaDialog();
+                }
+            });
+            bmb.addBuilder(builder);
+        }
     }
 
 
     void showTemperature(int temp)
     {
-        Toast.makeText(this, String.valueOf(temp), Toast.LENGTH_SHORT).show();
         progressBar.setVisibility(View.INVISIBLE);
         if(!first)
         {
@@ -199,6 +232,8 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         else
         {
             linearGauge = AnyChart.linear();
+            linearGauge.background().fill("#303030");
+
 
             linearGauge.data(new SingleValueDataSet(new Integer[] { temp }));
 
@@ -218,7 +253,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                     .anchor(Anchor.LEFT_BOTTOM)
                     .offsetY("20px")
                     .offsetX("38%")
-                    .fontColor("black")
+                    .fontColor("white")
                     .fontSize(17);
 
             linearGauge.label(1)
@@ -228,7 +263,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                     .anchor(Anchor.RIGHT_BOTTOM)
                     .offsetY("20px")
                     .offsetX("47.5%")
-                    .fontColor("black")
+                    .fontColor("white")
                     .fontSize(17);
 
             Base scale = linearGauge.scale()
@@ -253,7 +288,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
             linearGauge.axis(0).labels()
                     .format(
                             "function () {\n" +
-                                    "    return '<span style=\"color:black;\">' + this.value + '&deg;</span>'\n" +
+                                    "    return '<span style=\"color:white;\">' + this.value + '&deg;</span>'\n" +
                                     "  }")
                     .useHtml(true);
 
@@ -261,7 +296,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
             linearGauge.axis(1).labels()
                     .format(
                             "function () {\n" +
-                                    "    return '<span style=\"color:black;\">' + this.value + '&deg;</span>'\n" +
+                                    "    return '<span style=\"color:white;\">' + this.value + '&deg;</span>'\n" +
                                     "  }")
                     .useHtml(true);
             linearGauge.axis(1)
@@ -343,4 +378,18 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
     public void applyTexts(String username, String password) {
         Toast.makeText(this, username + password, Toast.LENGTH_SHORT).show();
     }
+
+    //
+
+    public void openOtaDialog() {
+        dialog_ota dialog = new dialog_ota();
+        dialog.show(getSupportFragmentManager(), "Ota dialog");
+    }
+
+    @Override
+    public void applyOtaTexts(String ip) {
+        Toast.makeText(this, ip, Toast.LENGTH_SHORT).show();
+    }
+
+    //
 }

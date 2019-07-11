@@ -38,6 +38,7 @@ repositories {
 
 
 dependencies {
+    implementation 'com.nightonke:boommenu:2.1.1'
     implementation 'com.github.iammert:ReadableBottomBar:0.2'
     implementation 'com.kevalpatel2106:ruler-picker:1.1'
     implementation 'com.github.anastr:speedviewlib:1.3.1'

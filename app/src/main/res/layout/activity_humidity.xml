@@ -4,19 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
+    android:background="#303030"
     tools:context="com.example.rahul.sih.humidity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#303030"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_marginTop="75dp"
             android:layout_width="300dp"
+            android:layout_height="500dp"
             android:layout_gravity="center_horizontal"
-            android:layout_height="500dp">
+            android:layout_marginTop="75dp"
+            android:background="#303030">
 
             <!--<com.anychart.AnyChartView
                 android:layout_width="match_parent"
@@ -25,10 +27,10 @@
             </com.anychart.AnyChartView>-->
 
             <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/piechart"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/piechart"
-                />
+                android:background="#303030" />
 
         </LinearLayout>
 
@@ -37,33 +39,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:background="#ffffff"
-        android:layout_marginTop="500dp">
+        android:layout_marginTop="505dp"
+        android:background="#303030"
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
-            android:text="Press"
-            android:onClick="openPressure"/>
+            android:onClick="openPressure"
+            android:text="Press" />
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
-            android:text="Temp"
-            android:onClick="openTemperature"/>
+            android:onClick="openTemperature"
+            android:text="Temp" />
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
-            android:text="Humid"
-            android:onClick="openHumidity"/>
+            android:onClick="openHumidity"
+            android:text="Humid" />
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
-            android:text="Vibra"
-            android:onClick="openVibrations"/>
+            android:onClick="openVibrations"
+            android:text="Vibra" />
 
     </LinearLayout>
 
@@ -77,7 +79,7 @@
         android:layout_marginEnd="32dp"
         android:fontFamily="@font/droid_sans_mono"
         android:text="30°"
-        android:textColor="#000"
+        android:textColor="#FFF"
         android:textSize="50dp"
         android:textStyle="bold" />
 
@@ -87,6 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="120dp"
         android:layout_marginTop="60dp"
+        android:textColor="#FFF"
         android:fontFamily="@font/fira_mono_bold"
         android:text="C"
         android:textSize="25sp" />
@@ -98,14 +101,14 @@
         android:layout_below="@+id/textView"
         android:layout_marginStart="21dp"
         android:text="1 min ago"
-        android:textColor="#000" />
+        android:textColor="#FFF" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/droid_sans_mono"
         android:text="229"
-        android:textColor="#000"
+        android:textColor="#FFF"
         android:textSize="45dp"
         android:layout_marginTop="35dp"
         android:layout_marginLeft="220dp"
@@ -117,6 +120,7 @@
         android:layout_height="wrap_content"
         android:text="ppm"
         android:textStyle="bold"
+        android:textColor="#FFF"
         android:layout_marginLeft="310dp"
         android:layout_marginTop="67dp"
         android:textSize="15sp"/>
@@ -128,18 +132,17 @@
         android:layout_below="@+id/textView"
         android:layout_marginStart="29dp"
         android:text="today"
-        android:textColor="#000" />
+        android:textColor="#FFF" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+    <com.nightonke.boommenu.BoomMenuButton
+        android:id="@+id/bmb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="400dp"
-        android:layout_marginLeft="300dp"
-        android:background="#FF0000"
-        android:clickable="true"
-        android:src="@drawable/stop_button"
-        android:backgroundTint="#ff0000"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+
+        />
 
     <ProgressBar
         android:id="@+id/progressBar"

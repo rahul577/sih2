@@ -10,18 +10,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
         <activity android:name=".pressure">
-        </activity>
-        <activity android:name=".thermometer" >
-        </activity>
-        <activity android:name=".humidity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".thermometer"></activity>
+        <activity android:name=".humidity">
         </activity>
 
         <meta-data
@@ -30,6 +29,7 @@
 
         <activity android:name=".vibrations">
         </activity>
+        <activity android:name=".sound"></activity>
     </application>
 
 </manifest>

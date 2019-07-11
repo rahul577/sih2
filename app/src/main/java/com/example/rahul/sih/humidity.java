@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -27,6 +28,12 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.HamButton;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +46,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class humidity extends AppCompatActivity {
+public class humidity extends AppCompatActivity implements dialog_ota.OtaDialogListener {
 
     AnyChartView anyChartView;
     String url;
@@ -50,6 +57,8 @@ public class humidity extends AppCompatActivity {
     WebSocket ws;
     private OkHttpClient client;
     PieChart pieChart;
+    private BoomMenuButton bmb;
+    private final ArrayList<Pair> piecesAndButtons = new ArrayList<>();
 
 
     private final class EchoWebSocketListener extends WebSocketListener {
@@ -86,7 +95,7 @@ public class humidity extends AppCompatActivity {
 
     private void start() {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
-        String local = "ws://172.16.166.209:5000/echo?connectionType=client";
+        String local = "ws://" + "172.16.168.45" + ":5000/echo?connectionType=client";
         String echo = "ws://echo.websocket.org";
         okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
@@ -128,13 +137,39 @@ public class humidity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_humidity);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         currentTemperature = findViewById(R.id.currentTemperature);
         currentPpm = findViewById(R.id.currentPpm);
 
         pieChart = findViewById(R.id.piechart);
+        showHumidity(75, 0, 0);
 
         client = new OkHttpClient();
         start();
+
+        bmb = (BoomMenuButton) findViewById(R.id.bmb);
+        assert bmb != null;
+        bmb.setButtonEnum(ButtonEnum.Ham);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_1);
+        bmb.addBuilder(BuilderManager.getHamButtonBuilder());
+
+        BuilderManager.getHamButtonData(piecesAndButtons);
+        int position = 12;
+        bmb.setPiecePlaceEnum((PiecePlaceEnum) piecesAndButtons.get(position).first);
+        bmb.setButtonPlaceEnum((ButtonPlaceEnum) piecesAndButtons.get(position).second);
+        bmb.clearBuilders();
+        for (int i = 0; i < bmb.getPiecePlaceEnum().pieceNumber(); i++)
+        {
+            HamButton.Builder builder = BuilderManager.getHamButtonBuilder();
+            builder.listener(new OnBMClickListener() {
+                @Override
+                public void onBoomButtonClick(int index) {
+                    openOtaDialog();
+                }
+            });
+            bmb.addBuilder(builder);
+        }
     }
 
 
@@ -161,7 +196,16 @@ public class humidity extends AppCompatActivity {
             PieDataSet dataSet = new PieDataSet(yValues, "Humidity");
             dataSet.setSliceSpace(3f);
             dataSet.setSelectionShift(5f);
-            dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
+
+            final int[] JOYFUL_COLORS = {
+                    Color.rgb(248, 247, 244), Color.rgb(254, 149, 7)
+            };
+
+            ArrayList<Integer> colours = new ArrayList<>();
+            colours.add(Color.rgb(248, 247, 244));
+            colours.add(Color.rgb(248, 247, 244));
+            pieChart.setHoleColor(Color.rgb(48, 48, 48));
+            dataSet.setColors(colours);
 
             PieData data = new PieData((dataSet));
             data.setValueTextSize(10f);
@@ -184,7 +228,16 @@ public class humidity extends AppCompatActivity {
             PieDataSet dataSet = new PieDataSet(yValues, "Humidity");
             dataSet.setSliceSpace(3f);
             dataSet.setSelectionShift(5f);
-            dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
+            ArrayList<Integer> colours = new ArrayList<>();
+            colours.add(Color.rgb(77, 120, 145));
+            colours.add(Color.rgb(48, 48, 48));
+            colours.add(Color.rgb(48, 48, 48));
+            colours.add(Color.rgb(48, 48, 48));
+            colours.add(Color.rgb(48, 48, 48));
+            pieChart.setHoleColor(Color.rgb(48, 48, 48));
+
+
+            dataSet.setColors(colours);
 
             PieData data = new PieData((dataSet));
             data.setValueTextSize(10f);
@@ -234,4 +287,19 @@ public class humidity extends AppCompatActivity {
             ws.close(1000, null);
         super.onStop();
     }
+
+    //
+
+    public void openOtaDialog() {
+        dialog_ota dialog = new dialog_ota();
+        dialog.show(getSupportFragmentManager(), "Ota dialog");
+    }
+
+    @Override
+    public void applyOtaTexts(String ip) {
+        Toast.makeText(this, ip, Toast.LENGTH_SHORT).show();
+    }
+
+
+    //
 }

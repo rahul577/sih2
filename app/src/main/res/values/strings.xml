@@ -4,4 +4,15 @@
     <string name="Temperature">Temperature</string>
     <string name="Air_quality">Air quality</string>
     <string name="Vibrations">Vibrations</string>
+
+
+    <string name="ip">172.16.168.45</string>
+
+
+    <string name="text_ham_button_text_normal">Ham Button Text(Normal)</string>
+    <string name="text_ham_button_text_highlighted">Ham Button Text(Highlighted)</string>
+    <string name="text_ham_button_text_unable">Ham Button Text(Unable)</string>
+    <string name="text_ham_button_sub_text_normal">Ham Button Sub Text(Normal)</string>
+    <string name="text_ham_button_sub_text_highlighted">Ham Button Sub Text(Highlighted)</string>
+    <string name="text_ham_button_sub_text_unable">Ham Button Sub Text(Unable)</string>
 </resources>

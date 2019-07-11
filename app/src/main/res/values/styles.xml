@@ -1,3 +1,5 @@
+
+
 <resources>
 
     <!-- Base application theme. -->
@@ -7,26 +9,15 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>-->
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- Base application theme without actionbar. -->
-    <style name="AppTheme.NoActionbar" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
-
-
-    <!-- Base application theme. -->
     <style name="CounterTextStyle" parent="Base.TextAppearance.AppCompat.Small">
         <item name="android:textColor">@android:color/white</item>
     </style>
-
 </resources>
+
+
