@@ -34,7 +34,7 @@ public class ExampleDialog extends AppCompatDialogFragment {
         maxValuePicker.getCurrentValue();
 
         builder.setView(view)
-                .setTitle("Login")
+                .setTitle("Set threshold")
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

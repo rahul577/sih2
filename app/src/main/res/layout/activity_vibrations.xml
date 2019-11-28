@@ -36,26 +36,34 @@
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Press"
-                android:onClick="openPressure"/>
+                android:onClick="openPressure"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Press" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Temp"
-                android:onClick="openTemperature"/>
+                android:onClick="openTemperature"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Temp" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Humid"
-                android:onClick="openHumidity"/>
+                android:onClick="openHumidity"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Humid" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Vibra"
-                android:onClick="openVibrations"/>
+                android:onClick="openVibrations"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Vibra" />
 
         </LinearLayout>
 
@@ -69,9 +77,8 @@
         android:id="@+id/bmb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_marginTop="420dp"
+        android:layout_marginLeft="280dp"
 
         />
 

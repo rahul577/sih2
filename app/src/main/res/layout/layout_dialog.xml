@@ -5,7 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"><android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="#303030">
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/height_picker_heading"
@@ -42,13 +43,13 @@
         android:layout_marginTop="4dp"
         android:background="@color/colorAccent"
         app:indicator_color="@android:color/darker_gray"
-        app:indicator_interval="8dp"
+        app:indicator_interval="20dp"
         app:indicator_width="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/height_value_tv"
-        app:max_value="250"
-        app:min_value="100"
+        app:max_value="25"
+        app:min_value="0"
         app:notch_color="@color/colorPrimaryDark"
         app:ruler_text_size="4sp"
         tools:targetApi="lollipop" />
@@ -89,14 +90,14 @@
         android:background="@android:color/holo_orange_dark"
         android:elevation="4dp"
         app:indicator_color="@android:color/white"
-        app:indicator_interval="14dp"
+        app:indicator_interval="20dp"
         app:indicator_width="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weight_value_tv"
-        app:max_value="120"
-        app:min_value="35"
+        app:max_value="25"
+        app:min_value="0"
         app:notch_color="@android:color/white"
         app:ruler_text_size="6sp"
         tools:targetApi="lollipop" />

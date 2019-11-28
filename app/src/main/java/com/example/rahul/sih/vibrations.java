@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -48,6 +50,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import okhttp3.OkHttpClient;
 import okhttp3.WebSocket;
@@ -59,6 +62,7 @@ public class vibrations extends AppCompatActivity implements dialog_ota.OtaDialo
     Boolean first = true;
     ProgressBar progressBar;
     List<DataEntry> seriesData = new ArrayList<>();
+    List<Float> l = new ArrayList<>();
     WebSocket ws;
     private OkHttpClient client;
     int val = 0;
@@ -73,10 +77,6 @@ public class vibrations extends AppCompatActivity implements dialog_ota.OtaDialo
 
         @Override
         public void onOpen(WebSocket webSocket, okhttp3.Response response) {
-            /*webSocket.send("Hello, it's SSaurel !");
-            webSocket.send("What's up ?");
-            webSocket.send(ByteString.decodeHex("deadbeef"));
-            //webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye !");*/
         }
 
         @Override
@@ -102,7 +102,10 @@ public class vibrations extends AppCompatActivity implements dialog_ota.OtaDialo
 
     private void start() {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
-        String local = "ws://" + "172.16.168.45"  + ":5000/echo?connectionType=client";
+        String ip = getResources().getString(R.string.ip);
+
+        //String local = "ws://" + ip  + ":5000/echo?connectionType=client";
+        String local = "ws://" + "172.16.0168.45" + ":5000/echo?connectionType=client";
         //Toast.makeText(this, local, Toast.LENGTH_SHORT).show();
         String echo = "ws://echo.websocket.org";
         okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
@@ -176,6 +179,36 @@ public class vibrations extends AppCompatActivity implements dialog_ota.OtaDialo
         for (int i = 0; i < bmb.getPiecePlaceEnum().pieceNumber(); i++)
         {
             HamButton.Builder builder = BuilderManager.getHamButtonBuilder();
+
+            switch (i)
+            {
+                case 0:
+                    builder.normalTextRes(R.string.sensor0);
+                    builder.subNormalTextRes(R.string.sensorName0);
+                    break;
+                case 1:
+                    builder.normalTextRes(R.string.sensor1);
+                    builder.subNormalTextRes(R.string.sensorName1);
+                    break;
+                case 2:
+                    builder.normalTextRes(R.string.sensor2);
+                    builder.subNormalTextRes(R.string.sensorName2);
+                    break;
+                case 3:
+                    builder.normalTextRes(R.string.sensor3);
+                    builder.subNormalTextRes(R.string.sensorName3);
+                    break;
+                case 4:
+                    builder.normalTextRes(R.string.sensor4);
+                    builder.subNormalTextRes(R.string.sensorName4);
+                    break;
+                default:
+                    builder.normalTextRes(R.string.sensor0);
+                    builder.subNormalTextRes(R.string.sensorName0);
+                    break;
+            }
+
+
             builder.listener(new OnBMClickListener() {
                 @Override
                 public void onBoomButtonClick(int index) {
@@ -277,6 +310,26 @@ public class vibrations extends AppCompatActivity implements dialog_ota.OtaDialo
     @Override
     public void applyOtaTexts(String ip) {
         Toast.makeText(this, ip, Toast.LENGTH_SHORT).show();
+    }
+
+    //
+
+    // create an action bar button
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // handle button activities
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
+        /*if (id == R.id.mybutton) {
+            // do something here
+        }*/
+        return super.onOptionsItemSelected(item);
     }
 
     //

@@ -20,10 +20,9 @@ public class BuilderManager {
 
     private static int[] imageResources = new int[]{
             R.drawable.bat,
-            R.drawable.bear,
             R.drawable.bee,
             R.drawable.butterfly,
-            R.drawable.cat,
+            R.drawable.ic_celcius,
             R.drawable.deer,
             R.drawable.dolphin,
             R.drawable.eagle,
@@ -48,14 +47,14 @@ public class BuilderManager {
 
     static HamButton.Builder getHamButtonBuilder() {
         return new HamButton.Builder()
-                .normalImageRes(getImageResource())
+              /*  .normalImageRes(getImageResource()) */
                 .normalTextRes(R.string.text_ham_button_text_normal)
                 .subNormalTextRes(R.string.text_ham_button_sub_text_normal);
     }
 
     static HamButton.Builder getHamButtonBuilder(String text, String subText) {
         return new HamButton.Builder()
-                .normalImageRes(getImageResource())
+                //.normalImageRes(getImageResource())
                 .normalText(text)
                 .subNormalText(subText);
     }

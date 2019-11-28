@@ -47,24 +47,32 @@
             android:layout_width="89dp"
             android:layout_height="wrap_content"
             android:onClick="openPressure"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#000"
             android:text="Press" />
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
             android:onClick="openTemperature"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#000"
             android:text="Temp" />
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
             android:onClick="openHumidity"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#000"
             android:text="Humid" />
 
         <Button
             android:layout_width="89dp"
             android:layout_height="wrap_content"
             android:onClick="openVibrations"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#000"
             android:text="Vibra" />
 
     </LinearLayout>
@@ -107,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/droid_sans_mono"
-        android:text="229"
+        android:text="0"
         android:textColor="#FFF"
         android:textSize="45dp"
         android:layout_marginTop="35dp"
@@ -118,7 +126,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ppm"
+        android:text="lpg"
         android:textStyle="bold"
         android:textColor="#FFF"
         android:layout_marginLeft="310dp"
@@ -138,9 +146,8 @@
         android:id="@+id/bmb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_marginTop="420dp"
+        android:layout_marginLeft="280dp"
 
         />
 

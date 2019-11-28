@@ -1,16 +1,25 @@
 package com.example.rahul.sih;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.speech.tts.TextToSpeech;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
@@ -45,13 +54,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Timer;
 
 import okhttp3.OkHttpClient;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener,dialog_ota.OtaDialogListener{
+public class thermometer extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, PopupMenu.OnMenuItemClickListener, dialog_ota.OtaDialogListener{
 
     AnyChartView anyChartView;
     Boolean first = true;
@@ -65,6 +76,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
     List list;
     private BoomMenuButton bmb;
     private final ArrayList<Pair> piecesAndButtons = new ArrayList<>();
+    TextView temperature_text_view, current_temperature_text_view;
 
 
     void add_index(int idx)
@@ -93,10 +105,6 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
         @Override
         public void onOpen(WebSocket webSocket, okhttp3.Response response) {
-            webSocket.send("Hello, it's SSaurel !");
-            webSocket.send("What's up ?");
-            webSocket.send(ByteString.decodeHex("deadbeef"));
-            //webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye !");
         }
 
         @Override
@@ -122,13 +130,13 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
     private void start() {
         String url = "ws://sensorapiturings.herokuapp.com/echo?connectionType=client";
-        String local = "ws://" + "172.16.168.45" + ":5000/echo?connectionType=client";
+        String ip = getResources().getString(R.string.ip);
+        String local = "ws://" + ip + ":5000/echo?connectionType=client";
         String echo = "ws://echo.websocket.org";
         okhttp3.Request request = new okhttp3.Request.Builder().url(local).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         ws = client.newWebSocket(request, listener);
         client.dispatcher().executorService().shutdown();
-        //ws.send("message");
     }
 
     private void output(final String txt) {
@@ -144,7 +152,10 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                 add_index(Integer.parseInt(list.get(0)));
                 str += list.get(0);
                 if(current == Integer.parseInt(list.get(0)))
-                    showTemperature(Integer.parseInt(list.get(1)));
+                    showTemperature(Float.parseFloat(list.get(1)));
+                temperature_text_view.setText("Limit :" + list.get(2) + " °C");
+                if(list.get(3) == "true")
+                    speakOut();
             }
         });
     }
@@ -160,6 +171,8 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
             list.add(obj.getString("sensorIndex"));
             //add new sensor
             list.add(data.getString("currentTemperature"));
+            list.add(data.getString("temperatureThreshold"));
+            list.add(data.getString("temperatureCritical"));
             return list;
 
         } catch (JSONException e) {
@@ -182,18 +195,18 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         list = new ArrayList<Integer>();
         showPopup(findViewById(R.id.relativeLayout));
 
-        showTemperature(50);
         client = new OkHttpClient();
-        start();
 
         anyChartView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 openDialog();
-                Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
+
+        temperature_text_view = findViewById(R.id.temperature_text_view);
+        current_temperature_text_view = findViewById(R.id.current_temperature_text_view);
 
         bmb = (BoomMenuButton) findViewById(R.id.bmb);
         assert bmb != null;
@@ -210,6 +223,35 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         for (int i = 0; i < bmb.getPiecePlaceEnum().pieceNumber(); i++)
         {
             HamButton.Builder builder = BuilderManager.getHamButtonBuilder();
+
+            switch (i)
+            {
+                case 0:
+                    builder.normalTextRes(R.string.sensor0);
+                    builder.subNormalTextRes(R.string.sensorName0);
+                    break;
+                case 1:
+                    builder.normalTextRes(R.string.sensor1);
+                    builder.subNormalTextRes(R.string.sensorName1);
+                    break;
+                case 2:
+                    builder.normalTextRes(R.string.sensor2);
+                    builder.subNormalTextRes(R.string.sensorName2);
+                    break;
+                case 3:
+                    builder.normalTextRes(R.string.sensor3);
+                    builder.subNormalTextRes(R.string.sensorName3);
+                    break;
+                case 4:
+                    builder.normalTextRes(R.string.sensor4);
+                    builder.subNormalTextRes(R.string.sensorName4);
+                    break;
+                default:
+                    builder.normalTextRes(R.string.sensor0);
+                    builder.subNormalTextRes(R.string.sensorName0);
+                    break;
+            }
+
             builder.listener(new OnBMClickListener() {
                 @Override
                 public void onBoomButtonClick(int index) {
@@ -217,12 +259,23 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
                 }
             });
             bmb.addBuilder(builder);
+
+            showTemperature(Float.parseFloat("0"));
+            start();
         }
     }
 
 
-    void showTemperature(int temp)
+    public void speakOut()
     {
+        /*tts.setLanguage(Locale.US);
+        tts.speak("factory mein aag lagi", TextToSpeech.QUEUE_ADD, null);*/
+    }
+
+    void showTemperature(Float f_temp)
+    {
+        current_temperature_text_view.setText(String.valueOf(f_temp));
+        int temp = Math.round(f_temp);
         progressBar.setVisibility(View.INVISIBLE);
         if(!first)
         {
@@ -268,7 +321,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
             Base scale = linearGauge.scale()
                     .minimum(0)
-                    .maximum(100);
+                    .maximum(350);
 //                .setTicks
 
             linearGauge.axis(0).scale(scale);
@@ -305,7 +358,7 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
             Linear linear = Linear.instantiate();
             linear.minimum(-20)
-                    .maximum(100);
+                    .maximum(350);
 //                .setTicks
             linearGauge.axis(1).scale(linear);
 
@@ -323,7 +376,6 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
         String str = String.valueOf(item.getTitle());
         str = str.substring(4);
         current = Integer.parseInt(str);
-        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -334,7 +386,6 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
 
 
     public void openTemperature(View v) {
-        Toast.makeText(getApplication(), String.valueOf(list.size()), Toast.LENGTH_SHORT).show();
         popup.show();
     }
 
@@ -389,6 +440,26 @@ public class thermometer extends AppCompatActivity implements ExampleDialog.Exam
     @Override
     public void applyOtaTexts(String ip) {
         Toast.makeText(this, ip, Toast.LENGTH_SHORT).show();
+    }
+
+    //
+
+    // create an action bar button
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // handle button activities
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
+        /*if (id == R.id.mybutton) {
+            // do something here
+        }*/
+        return super.onOptionsItemSelected(item);
     }
 
     //

@@ -30,6 +30,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/temperature_text_view"
             android:text="Limit :75 °C"
             android:layout_marginLeft="140dp"
             android:textColor="#FFF"
@@ -45,26 +46,34 @@
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Press"
-                android:onClick="openPressure"/>
+                android:onClick="openPressure"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Press" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Temp"
-                android:onClick="openTemperature"/>
+                android:onClick="openTemperature"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Temp" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Humid"
-                android:onClick="openHumidity"/>
+                android:onClick="openHumidity"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Humid" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
-                android:text="Vibra"
-                android:onClick="openVibrations"/>
+                android:onClick="openVibrations"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
+                android:text="Vibra" />
 
         </LinearLayout>
 
@@ -72,13 +81,23 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/current_temperature_text_view"
+        android:textSize="30sp"
+        android:textColor="#fff"
+        android:text="0 °C"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="100dp"/>
+
+
     <com.nightonke.boommenu.BoomMenuButton
         android:id="@+id/bmb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_marginTop="420dp"
+        android:layout_marginLeft="280dp"
 
         />
 

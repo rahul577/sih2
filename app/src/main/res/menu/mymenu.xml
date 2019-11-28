@@ -2,8 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/mybutton"
-        android:title=""
+        android:title="Stop"
         app:showAsAction="always"
-        android:icon="@drawable/ic_camera"
+        android:icon="@drawable/stop1"
         />
 </menu>

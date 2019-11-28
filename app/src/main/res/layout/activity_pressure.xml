@@ -41,7 +41,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Limit: 100 Bar"
+                android:text="Limit: 1.05 Bar"
+                android:id="@+id/limit_text_view"
                 android:layout_marginTop="305dp"
                 android:layout_marginLeft="130dp"
                 android:textSize="15sp"
@@ -55,31 +56,38 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_marginTop="45dp"
-            android:background="#303030"
             android:orientation="horizontal">
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
                 android:onClick="openPressure"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
                 android:text="Press" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
                 android:onClick="openTemperature"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
                 android:text="Temp" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
                 android:onClick="openHumidity"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
                 android:text="Humid" />
 
             <Button
                 android:layout_width="89dp"
                 android:layout_height="wrap_content"
                 android:onClick="openVibrations"
+                android:background="@drawable/my_button_bg"
+                android:textColor="#000"
                 android:text="Vibra" />
 
         </LinearLayout>
@@ -90,9 +98,8 @@
         android:id="@+id/bmb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_marginTop="420dp"
+        android:layout_marginLeft="280dp"
 
         />
 

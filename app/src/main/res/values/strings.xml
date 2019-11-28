@@ -8,6 +8,17 @@
 
     <string name="ip">172.16.168.45</string>
 
+    <string name="sensor0">Air Quality</string>
+    <string name="sensor1">Pressure</string>
+    <string name="sensor2">Temperature</string>
+    <string name="sensor3">Noise</string>
+    <string name="sensor4">Vibrator</string>
+
+    <string name="sensorName0">DHT11, MQ6, MQ2, MQ135</string>
+    <string name="sensorName1">BMP180</string>
+    <string name="sensorName2">k-type Thermocouple</string>
+    <string name="sensorName3">LM393</string>
+    <string name="sensorName4">MPU6050</string>
 
     <string name="text_ham_button_text_normal">Ham Button Text(Normal)</string>
     <string name="text_ham_button_text_highlighted">Ham Button Text(Highlighted)</string>
